@@ -21,12 +21,14 @@
 
 	return _specifiers;
 }
-
+/*
 - (void)respring {
+	//[NSThread sleepForTimeInterval: 3.2];
+
 	pid_t pid;
     const char* args[] = {"killall", "backboardd", NULL};
     posix_spawn(&pid, "/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
-}
+}*/
 -(void)twitter {
 	[[UIApplication sharedApplication]
 	openURL:[NSURL URLWithString:@"https://twitter.com/1DI4R"]
@@ -47,21 +49,50 @@
 		 	 				}
 
 							//thanks to @teo155 for this :P
-							
-- (void)loadSpinner {
-	             UIActivityIndicatorView *progressWheel=[[UIActivityIndicatorView alloc]     initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
 
-	             //makes activity indicator disappear when it is stopped
-	             progressWheel.hidesWhenStopped = YES;
-               	//used to locate position of activity indicator
-	             progressWheel.center = CGPointMake(185, 166);
-	             [self.view addSubview: progressWheel];
-	             [progressWheel startAnimating];
-	             [progressWheel performSelector:@selector(stopAnimating) withObject:nil afterDelay:3.0];
-	             [progressWheel release];
-             }
-- (void)_returnKeyPressed:(NSNotification *)settingschanged {
-	                  [self loadSpinner];
-	                  [self.view endEditing:YES];
-             }
+- (void)loadSpinner {
+
+
+	UIAlertController *pending = [UIAlertController alertControllerWithTitle:nil
+	                                                               message:@"Saving Changes...\n\n"
+	                                                        preferredStyle:UIAlertControllerStyleAlert];
+	UIActivityIndicatorView* indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+	indicator.color = [UIColor blackColor];
+	indicator.translatesAutoresizingMaskIntoConstraints=NO;
+	indicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+
+	[pending.view addSubview:indicator];
+	NSDictionary * views = @{@"pending" : pending.view, @"indicator" : indicator};
+
+	NSArray * constraintsVertical = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[indicator]-(20)-|" options:0 metrics:nil views:views];
+	NSArray * constraintsHorizontal = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[indicator]|" options:0 metrics:nil views:views];
+	NSArray * constraints = [constraintsVertical arrayByAddingObjectsFromArray:constraintsHorizontal];
+	[pending.view addConstraints:constraints];
+	[indicator setUserInteractionEnabled:NO];
+	[indicator startAnimating];
+	[self presentViewController:pending animated:YES completion:nil];
+	[indicator performSelector:@selector(stopAnimating) withObject:nil afterDelay:2.0];
+  [self performSelector:@selector(hideAlertView) withObject:nil afterDelay:2.0];             }
+
+	-(void)hideAlertView{
+	// [pending dismissViewControllerAnimated:YES completion:nil];
+	  [self dismissViewControllerAnimated:pending completion:nil];
+		[pending release];
+	}
+
+-(void)doit {
+	[self loadSpinner];
+	[self.view endEditing:YES];
+
+	double delayInSeconds = 2.3;
+  dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+  dispatch_after(popTime, dispatch_get_main_queue(), ^(void)
+	 {
+	               pid_t pid;
+		             const char* args[] = {"killall", "backboardd", NULL};
+		             posix_spawn(&pid, "/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
+							 });
+
+}
+
 @end
