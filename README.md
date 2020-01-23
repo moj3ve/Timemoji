@@ -1,11 +1,9 @@
-# Check out the tweak in cydia/sileo
+# A Bad written code, i wish i never made this :(
 
 # Timemoji
 Replace AM/PM with Emojis
 
-Timemoji is now on bigboss repo
-
-• Only tested on iOS 12 so idk if it work on iOS 11
+• Compatible Only with iOS 12
 
 • The First time you install it you must set emojis on settings app
 
